@@ -101,8 +101,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-medium text-foreground">Address</h3>
-                      <p className="text-muted-foreground">sindhu-bhavan , Ahmedabad , India<br />
-                        Maharashtra, India - 400001
+                      <p className="text-muted-foreground text-right">sindhu-bhavan , Ahmedabad , India-380059<br />
+                        ​   
                       </p>
                     </div>
                   </div>
