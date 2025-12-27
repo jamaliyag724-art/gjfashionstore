@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -7,11 +7,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Mail, MapPin, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import emailjs from '@emailjs/browser';
+
+const EMAILJS_SERVICE_ID = 'service_bf3fnya';
+const EMAILJS_TEMPLATE_ID = 'template_3jb6ome';
+const EMAILJS_PUBLIC_KEY = 'yvWssWWx94ibEP33n';
+
 const Contact = () => {
+  const formRef = useRef<HTMLFormElement>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message) {
@@ -25,15 +33,25 @@ const Contact = () => {
     }
     setLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    toast.success('Message sent successfully!', {
-      description: "We'll get back to you within 24 hours."
-    });
-    setName('');
-    setEmail('');
-    setMessage('');
-    setLoading(false);
+    try {
+      await emailjs.sendForm(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        formRef.current!,
+        EMAILJS_PUBLIC_KEY
+      );
+      toast.success('Message sent successfully!', {
+        description: "We'll get back to you within 24 hours."
+      });
+      setName('');
+      setEmail('');
+      setMessage('');
+    } catch (error) {
+      console.error('EmailJS error:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
   return <>
       <Helmet>
@@ -134,20 +152,20 @@ const Contact = () => {
                     Send us a Message
                   </h2>
                   
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
                     <div>
                       <label className="text-sm font-medium text-foreground">Name</label>
-                      <Input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className="mt-1" />
+                      <Input name="from_name" value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className="mt-1" />
                     </div>
 
                     <div>
                       <label className="text-sm font-medium text-foreground">Email</label>
-                      <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Your email address" className="mt-1" />
+                      <Input type="email" name="from_email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Your email address" className="mt-1" />
                     </div>
 
                     <div>
                       <label className="text-sm font-medium text-foreground">Message</label>
-                      <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="How can we help you?" rows={5} className="mt-1" />
+                      <Textarea name="message" value={message} onChange={e => setMessage(e.target.value)} placeholder="How can we help you?" rows={5} className="mt-1" />
                     </div>
 
                     <Button variant="gold" className="w-full" size="lg" type="submit" disabled={loading}>
