@@ -58,7 +58,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">
           <img
             src={product.image}
-            alt={`${product.name} - GJ Fashion ${product.category} ${product.subcategory}`}
+            alt={product.altText || `${product.name} - GJ Fashion Store ${product.category} ${product.subcategory}`}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />

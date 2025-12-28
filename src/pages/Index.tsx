@@ -15,19 +15,19 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>GJ Fashion - Premium Fashion for Men, Women & Kids | Online Fashion Store India</title>
+        <title>GJ Fashion Store – Trendy Men & Women Clothing India</title>
         <meta
           name="description"
-          content="Shop premium fashion at GJ Fashion. Discover the latest trends in men's, women's, and kids' clothing. Quality designs for everyday confidence. Free shipping across India."
+          content="Shop trendy fashion at GJ Fashion Store India. Discover premium men and women clothing, stylish wear for every occasion. Free shipping & easy returns."
         />
         <meta
           name="keywords"
-          content="fashion online India, men's clothing, women's fashion, kids wear, premium fashion, GJ Fashion, online shopping, blazers, shirts, dresses"
+          content="men clothing online India, women fashion store, trendy fashion India, online fashion store India, men and women clothing, trendy fashion wear"
         />
-        <meta property="og:title" content="GJ Fashion - Premium Fashion for Everyone" />
+        <meta property="og:title" content="GJ Fashion Store – Trendy Men & Women Clothing India" />
         <meta
           property="og:description"
-          content="Discover timeless elegance with premium quality designs at GJ Fashion. Shop now for the latest trends."
+          content="Shop trendy fashion at GJ Fashion Store India. Discover premium men and women clothing for every occasion."
         />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://gjfashion.com" />
