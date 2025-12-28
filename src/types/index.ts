@@ -5,6 +5,7 @@ export interface Product {
   price: number;
   originalPrice?: number;
   image: string;
+  altText?: string;
   category: 'men' | 'women' | 'kids';
   subcategory: string;
   sizes: string[];

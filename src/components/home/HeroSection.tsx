@@ -10,7 +10,7 @@ export function HeroSection() {
       <div className="absolute inset-0">
         <img
           src={heroImage}
-          alt="GJ Fashion - Timeless Elegance for Modern Style"
+          alt="GJ Fashion Store trendy men and women clothing collection India"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-primary/40 to-transparent" />
@@ -25,7 +25,7 @@ export function HeroSection() {
             transition={{ delay: 0.2 }}
             className="text-gold font-medium tracking-widest uppercase mb-4"
           >
-            New Collection 2025
+            India's Trendy Fashion Store
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -33,7 +33,7 @@ export function HeroSection() {
             transition={{ delay: 0.4 }}
             className="font-display text-4xl md:text-5xl lg:text-7xl font-bold text-primary-foreground leading-tight mb-6"
           >
-            Timeless Elegance for Modern Style
+            Trendy Fashion for Modern India
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -41,8 +41,7 @@ export function HeroSection() {
             transition={{ delay: 0.6 }}
             className="text-lg lg:text-xl text-primary-foreground/90 mb-8 max-w-lg"
           >
-            Premium fashion curated for confidence and comfort. Discover our latest
-            collection of men's, women's, and kids' fashion.
+            Welcome to GJ Fashion Store – your go-to online fashion store in India. We bring you the latest trendy fashion wear for men, women, and kids. Whether you're looking for casual outfits or something stylish for a special occasion, we have it all.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
