@@ -131,14 +131,22 @@ export const useStore = create<StoreState>()(
         );
       },
 
-      // User
-      user: null,
-      login: (name, email) => {
-        set({ user: { name, email, isLoggedIn: true } });
-      },
-      logout: () => {
-        set({ user: null });
-      },
+  // User
+  user: null,
+  login: (name, email) => {
+    // Store registered user for auto-fill
+    const registeredUsers = JSON.parse(localStorage.getItem('gj-registered-users') || '[]');
+    const existingUser = registeredUsers.find((u: { email: string }) => u.email === email);
+    if (!existingUser) {
+      registeredUsers.push({ name, email });
+      localStorage.setItem('gj-registered-users', JSON.stringify(registeredUsers));
+    }
+    set({ user: { name, email, isLoggedIn: true } });
+  },
+  logout: () => {
+    set({ user: null });
+    window.location.href = '/';
+  },
     }),
     {
       name: 'gj-fashion-store',
