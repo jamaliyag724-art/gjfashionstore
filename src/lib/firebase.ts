@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA...Ec-A",
+  apiKey: "AIzaSyAqwM1rr_5BCCZLdANSCJwhN0gUykEeC-A",
   authDomain: "gj-fashion-store.firebaseapp.com",
   projectId: "gj-fashion-store",
-  storageBucket: "gj-fashion-store.appspot.com",
+  storageBucket: "gj-fashion-store.firebasestorage.app",
   messagingSenderId: "497143355906",
-  appId: "1:497143355906:web:bea21416e412be0241e51b"
+  appId: "1:497143355906:web:bea21416e412be0241e51b",
 };
 
 const app = initializeApp(firebaseConfig);
