@@ -1,6 +1,4 @@
-import { auth, db, apiKey } from "@/lib/firebase";
-
-
+import { auth, db } from "@/lib/firebase";
 
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
