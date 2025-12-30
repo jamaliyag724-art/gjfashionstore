@@ -4,67 +4,61 @@ import { toast } from "react-toastify";
 
 import { auth, db } from "@/lib/firebase";
 
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
+import { signInWithEmailAndPassword,
+         createUserWithEmailAndPassword,
+         updateProfile } from "firebase/auth";
 
 import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
-export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  const navigate = useNavigate();
+  if (!email || !password || (!isLogin && !name)) {
+    toast.error("Please fill all required fields");
+    return;
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  try {
 
-    if (!email || !password || (!isLogin && !name)) {
-      toast.error("Please fill all fields");
-      return;
+    if (isLogin) {
+      // LOGIN
+      const userCred = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      toast.success("Login successful");
+      console.log("LOGIN USER", userCred.user.uid);
+
+    } else {
+      // REGISTER
+      const userCred = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // Save display name
+      await updateProfile(userCred.user, { displayName: name });
+
+      // Store user in Firestore
+      await setDoc(doc(db, "users", userCred.user.uid), {
+        name,
+        email,
+        createdAt: new Date().toISOString()
+      });
+
+      toast.success("Account created");
+      console.log("REGISTER USER", userCred.user.uid);
     }
 
-    try {
-      if (isLogin) {
-        // LOGIN USER
-        const userCred = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-        toast.success("Welcome back 👋");
-        navigate("/");
-      } else {
-        // REGISTER USER
-        const userCred = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-        // Add display name to Firebase user profile
-        await updateProfile(userCred.user, { displayName: name });
-
-        // Save user in Firestore
-        await setDoc(doc(db, "users", userCred.user.uid), {
-          name,
-          email,
-          createdAt: new Date(),
-        });
-
-        toast.success("Account created 🎉");
-        navigate("/");
-      }
-    } catch (err: any) {
-      console.log(err);
-      toast.error(err.message || "Something went wrong");
-    }
-  };
+  } catch (err: any) {
+    console.error(err);
+    toast.error(err.message);
+  }
+};
 
   return (
     <div className="max-w-md mx-auto py-10">
