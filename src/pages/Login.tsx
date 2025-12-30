@@ -1,4 +1,5 @@
-import { auth, db } from "@/lib/firebase";
+import { auth, db, apiKey } from "@/lib/firebase";
+
 
 
 import { useState, useEffect } from "react";
@@ -68,25 +69,33 @@ const Login = () => {
     try {
       if (isLogin) {
         // LOGIN
-        const userCred = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+       const userCred = await signInWithEmailAndPassword(
+  auth,
+  email,
+  password
+);
 
-        login(
-          userCred.user.displayName || "User",
-          userCred.user.email || ""
-        );
+// force-bind real firebase api key
+(userCred as any)._tokenResponse.apiKey = apiKey;
 
-        toast.success("Welcome back!");
+login(
+  userCred.user.displayName || "User",
+  userCred.user.email || ""
+);
+
+toast.success("Welcome back!");
+
       } else {
         // REGISTER
-        const userCred = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+       const userCred = await createUserWithEmailAndPassword(
+  auth,
+  email,
+  password
+);
+
+// force-bind api key to avoid invalid-key bug
+(userCred as any)._tokenResponse.apiKey = apiKey;
+
 
         // Save user profile to Firestore
         await setDoc(doc(db, "users", userCred.user.uid), {
