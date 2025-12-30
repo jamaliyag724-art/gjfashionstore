@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
+  apiKey: "AIzaSyA...Ec-A",
+  authDomain: "gj-fashion-store.firebaseapp.com",
+  projectId: "gj-fashion-store",
+  storageBucket: "gj-fashion-store.appspot.com",
+  messagingSenderId: "497143355906",
+  appId: "1:497143355906:web:bea21416e412be0241e51b"
 };
 
 const app = initializeApp(firebaseConfig);
