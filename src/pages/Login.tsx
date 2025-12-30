@@ -1,3 +1,6 @@
+import { auth, db } from "@/lib/firebase";
+
+
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
@@ -9,8 +12,6 @@ import {
   signInWithEmailAndPassword
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
-
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
