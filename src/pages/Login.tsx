@@ -1,3 +1,10 @@
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Layout } from '@/components/layout/Layout';
@@ -21,11 +28,6 @@ const Login = () => {
   const [registeredUsers, setRegisteredUsers] = useState<{ name: string; email: string; password: string }[]>([]);
   const { login, user } = useStore();
 
-  // Load registered users from localStorage on mount
-  useEffect(() => {
-    const users = JSON.parse(localStorage.getItem('gj-registered-users') || '[]');
-    setRegisteredUsers(users);
-    
     // Auto-fill email if user previously signed up
     if (users.length > 0) {
       setEmail(users[users.length - 1].email);
@@ -42,9 +44,52 @@ const Login = () => {
       window.location.href = safeUrl;
     }
   }, [user]);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  if (!email || !password || (!isLogin && !name)) {
+    toast.error("Please fill all required fields");
+    return;
+  }
+
+  try {
+    if (isLogin) {
+      // 🔐 Firebase Login
+      const userCred = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      login(
+        userCred.user.displayName || "User",
+        userCred.user.email || ""
+      );
+
+      toast.success("Welcome back!");
+    } else {
+      // 🆕 Firebase Register
+      const userCred = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // Save extra data in Firestore
+      await setDoc(doc(db, "users", userCred.user.uid), {
+        name,
+        email,
+        createdAt: new Date()
+      });
+
+      login(name, email);
+      toast.success("Account created successfully!");
+    }
+  } catch (error: any) {
+    toast.error(error.message);
+  }
+};
+
 
     if (!email || !password) {
       toast.error('Please fill in all required fields');
@@ -108,14 +153,7 @@ const Login = () => {
     }
   };
 
-  // Auto-fill when switching tabs
-  const handleTabChange = (loginMode: boolean) => {
-    setIsLogin(loginMode);
-    if (loginMode && registeredUsers.length > 0) {
-      setEmail(registeredUsers[registeredUsers.length - 1].email);
-    }
-    setPassword('');
-  };
+ 
 
   if (user?.isLoggedIn) {
     return null;
