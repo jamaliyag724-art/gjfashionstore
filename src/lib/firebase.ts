@@ -1,17 +1,21 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAqwM1rr_5BCCZLdANSCJwhN0gUykEeC-A",
   authDomain: "gj-fashion-store.firebaseapp.com",
   projectId: "gj-fashion-store",
-  storageBucket: "gj-fashion-store.appspot.com",
+  storageBucket: "gj-fashion-store.firebasestorage.app",
   messagingSenderId: "497143355906",
-  appId: "1:497143355906:web:bea21416e412be0241e51b"
+  appId: "1:497143355906:web:bea21416e412be0241e51b",
+  measurementId: "G-48F8R18NLM"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+const analytics = getAnalytics(app);
