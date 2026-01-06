@@ -63,39 +63,46 @@ export default function Login() {
 
     setLoading(true);
 
-    try {
-      // ========== LOGIN ==========
-      if (isLogin) {
-        const result = await loginUser(email, password);
+   try {
 
-        if (!result.success) {
-          toast.error(result.message || "Invalid email or password");
-          setLoading(false);
-          return;
-        }
+  // ========== LOGIN ==========
+  if (isLogin) {
+    const result = await loginUser(email, password);
 
-        // save user session
-        localStorage.setItem("user", JSON.stringify(result.user));
+    if (!result.success) {
+      toast.error(result.message || "Invalid email or password");
+      setLoading(false);
+      return;
+    }
 
-        // update store state (for UI)
-        login(result.user.name, result.user.email);
+    localStorage.setItem("user", JSON.stringify(result.user));
+    login(result.user.name, result.user.email);
 
-        toast.success("Login successful!");
+    toast.success("Login successful!");
+    setTimeout(() => navigate("/"), 1000);
+    return;
+  }
 
-        setTimeout(() => navigate("/"), 1000);
-        return;
-      }
+  // ========== REGISTER ==========
+  const result = await registerUser(name, email, password);
 
-      // ========== REGISTER ==========
-      const result = await registerUser(name, email, password);
+  if (!result.success) {
+    toast.error(result.message);
+    setLoading(false);
+    return;
+  }
 
-      if (!result.success) {
-        toast.error(result.message);
-        setLoading(false);
-        return;
-      }
+  toast.success("Account created successfully!");
 
-      toast.success("Account created successfully!");
+  setTimeout(() => setIsLogin(true), 1200);
+
+} catch (err) {
+  console.error(err);
+  toast.error("Something went wrong, please try again.");
+} finally {
+  setLoading(false);
+}
+    toast.success("Account created successfully!");
 
       // switch to login mode
       setTimeout(() => {
