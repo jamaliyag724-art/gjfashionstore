@@ -82,39 +82,35 @@ export default function Login() {
     setTimeout(() => navigate("/"), 1000);
     return;
   }
+ // ============ REGISTER (PHP Backend) ============
+try {
+  const res = await fetch("http://localhost/backend/api/register.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password }),
+  });
 
-  // ========== REGISTER ==========
-  const result = await registerUser(name, email, password);
+  const result = await res.json();
 
   if (!result.success) {
-    toast.error(result.message);
+    toast.error(result.message || "Registration failed");
     setLoading(false);
     return;
   }
 
   toast.success("Account created successfully!");
 
-  setTimeout(() => setIsLogin(true), 1200);
+  setTimeout(() => {
+    setIsLogin(true); // switch to Login tab
+  }, 1200);
 
 } catch (err) {
   console.error(err);
-  toast.error("Something went wrong, please try again.");
+  toast.error("Server error — please try again.");
 } finally {
   setLoading(false);
 }
-    toast.success("Account created successfully!");
 
-      // switch to login mode
-      setTimeout(() => {
-        setIsLogin(true);
-      }, 1200);
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <Layout>
