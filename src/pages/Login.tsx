@@ -7,7 +7,13 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,12 +21,36 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const login = useStore((state) => state.login);
+
+  // ---------- PHP LOGIN API ----------
+  async function loginUser(email: string, password: string) {
+    const res = await fetch("http://localhost/backend/api/login.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    return await res.json();
+  }
+
+  // ---------- PHP REGISTER API ----------
+  async function registerUser(name: string, email: string, password: string) {
+    const res = await fetch("http://localhost/backend/api/register.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    return await res.json();
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // ---------- FORM VALIDATION ----------
     if (!email || !password || (!isLogin && !name)) {
       toast.error("Please fill all required fields");
       return;
@@ -34,43 +64,46 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // ========== LOGIN ==========
       if (isLogin) {
-        // LOGIN
-        const userCred = await signInWithEmailAndPassword(auth, email, password);
-        login(userCred.user.displayName || email, email);
+        const result = await loginUser(email, password);
+
+        if (!result.success) {
+          toast.error(result.message || "Invalid email or password");
+          setLoading(false);
+          return;
+        }
+
+        // save user session
+        localStorage.setItem("user", JSON.stringify(result.user));
+
+        // update store state (for UI)
+        login(result.user.name, result.user.email);
+
         toast.success("Login successful!");
-        setTimeout(() => navigate("/"), 1500);
-      } else {
-        // REGISTER
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
 
-        // Save display name
-        await updateProfile(userCred.user, { displayName: name });
-
-        // Store user in Firestore
-        await setDoc(doc(db, "users", userCred.user.uid), {
-          name,
-          email,
-          createdAt: new Date().toISOString(),
-        });
-
-        login(name, email);
-        toast.success("Account created successfully!");
-        setTimeout(() => navigate("/"), 1500);
+        setTimeout(() => navigate("/"), 1000);
+        return;
       }
-    } catch (err: any) {
+
+      // ========== REGISTER ==========
+      const result = await registerUser(name, email, password);
+
+      if (!result.success) {
+        toast.error(result.message);
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Account created successfully!");
+
+      // switch to login mode
+      setTimeout(() => {
+        setIsLogin(true);
+      }, 1200);
+    } catch (err) {
       console.error(err);
-      if (err.code === "auth/email-already-in-use") {
-        toast.error("Email already registered. Please login.");
-      } else if (err.code === "auth/invalid-email") {
-        toast.error("Invalid email address.");
-      } else if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-        toast.error("Invalid email or password.");
-      } else if (err.code === "auth/user-not-found") {
-        toast.error("No account found with this email.");
-      } else {
-        toast.error(err.message || "An error occurred");
-      }
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -79,18 +112,21 @@ export default function Login() {
   return (
     <Layout>
       <ToastContainer position="top-right" autoClose={3000} />
+
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">
               {isLogin ? "Welcome Back" : "Create Account"}
             </CardTitle>
+
             <CardDescription>
               {isLogin
                 ? "Sign in to your GJ Fashion Store account"
                 : "Join GJ Fashion Store today"}
             </CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
@@ -131,7 +167,11 @@ export default function Login() {
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Please wait..." : isLogin ? "Login" : "Create Account"}
+                {loading
+                  ? "Please wait..."
+                  : isLogin
+                  ? "Login"
+                  : "Create Account"}
               </Button>
 
               <p
