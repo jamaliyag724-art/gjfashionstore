@@ -43,64 +43,75 @@ export default function Login() {
 
   // ---------- FORM SUBMIT ----------
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!email || !password || (!isLogin && !name)) {
-      toast.error("Please fill all required fields");
-      return;
-    }
+  if (!email || !password || (!isLogin && !name)) {
+    toast.error("Please fill all required fields");
+    return;
+  }
 
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
+  if (password.length < 6) {
+    toast.error("Password must be at least 6 characters");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      // ===== LOGIN =====
-      if (isLogin) {
-        const result = await loginUser(email, password);
+  try {
 
-        if (!result.success) {
-          toast.error(result.message || "Invalid email or password");
-          setLoading(false);
-          return;
-        }
+    // ========== LOGIN ==========
+    if (isLogin) {
 
-        // store user in local storage
-        localStorage.setItem("user", JSON.stringify(result.user));
+      const res = await fetch("http://localhost/backend/api/login.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
-        // update zustand store
-        login(result.user.name, result.user.email);
-
-        toast.success("Login successful!");
-        setTimeout(() => navigate("/"), 1200);
-        return;
-      }
-
-      // ===== REGISTER =====
-      const result = await registerUser(name, email, password);
+      const result = await res.json();
 
       if (!result.success) {
-        toast.error(result.message || "Registration failed");
+        toast.error(result.message || "Invalid email or password");
         setLoading(false);
         return;
       }
 
-      toast.success("Account created successfully!");
+      // Save user
+      localStorage.setItem("user", JSON.stringify(result.user));
 
-      // switch to login tab
-      setTimeout(() => setIsLogin(true), 1200);
+      login(result.user.name, result.user.email);
 
-    } catch (err) {
-      console.error(err);
-      toast.error("Server error — please try again");
-    } finally {
-      setLoading(false);
+      toast.success("Login successful!");
+      setTimeout(() => navigate("/"), 1000);
+      return;
     }
-  };
 
+    // ========== REGISTER ==========
+    const res = await fetch("http://localhost/backend/api/register.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const result = await res.json();
+
+    if (!result.success) {
+      toast.error(result.message || "Registration failed");
+      setLoading(false);
+      return;
+    }
+
+    toast.success("Account created successfully!");
+    setTimeout(() => setIsLogin(true), 1000);
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Server error — please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <Layout>
       <ToastContainer position="top-right" autoClose={3000} />
