@@ -1,18 +1,1 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAqwM1rr_5BCCZLdANSCJwhN0gUykEeC-A",
-  authDomain: "gj-fashion-store.firebaseapp.com",
-  projectId: "gj-fashion-store",
-  storageBucket: "gj-fashion-store.firebasestorage.app",
-  messagingSenderId: "497143355906",
-  appId: "1:497143355906:web:bea21416e412be0241e51b",
-  measurementId: "G-48F8R18NLM"
-};
-
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-
-export const auth = getAuth(app);
-export const db = getFirestore(app);
