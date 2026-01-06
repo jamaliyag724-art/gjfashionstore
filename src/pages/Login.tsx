@@ -61,34 +61,78 @@ export default function Login() {
       return;
     }
 
-    setLoading(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-   try {
+  if (!email || !password || (!isLogin && !name)) {
+    toast.error("Please fill all required fields");
+    return;
+  }
 
-  // ========== LOGIN ==========
-  if (isLogin) {
-    const result = await loginUser(email, password);
+  if (password.length < 6) {
+    toast.error("Password must be at least 6 characters");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+
+    // ================= LOGIN =================
+    if (isLogin) {
+
+      const res = await fetch("http://localhost/backend/api/login.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await res.json();
+
+      if (!result.success) {
+        toast.error(result.message || "Invalid email or password");
+        setLoading(false);
+        return;
+      }
+
+      // Save logged-in user
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      login(result.user.name, result.user.email);
+
+      toast.success("Login successful!");
+      setTimeout(() => navigate("/"), 1200);
+      return;
+    }
+
+    // ================= REGISTER (PHP) =================
+    const res = await fetch("http://localhost/backend/api/register.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    const result = await res.json();
 
     if (!result.success) {
-      toast.error(result.message || "Invalid email or password");
+      toast.error(result.message || "Registration failed");
       setLoading(false);
       return;
     }
 
-    localStorage.setItem("user", JSON.stringify(result.user));
-    login(result.user.name, result.user.email);
+    toast.success("Account created successfully!");
 
-    toast.success("Login successful!");
-    setTimeout(() => navigate("/"), 1000);
-    return;
+    setTimeout(() => {
+      setIsLogin(true); // switch to login tab
+    }, 1200);
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Server error — please try again.");
+  } finally {
+    setLoading(false);
   }
- // ============ REGISTER (PHP Backend) ============
-try {
-  const res = await fetch("http://localhost/backend/api/register.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password }),
-  });
+};
 
   const result = await res.json();
 
