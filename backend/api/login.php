@@ -3,44 +3,30 @@ require_once "../config.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$name = trim($data["name"] ?? "");
 $email = trim($data["email"] ?? "");
 $password = $data["password"] ?? "";
 
-if (!$name || !$email || !$password) {
-    echo json_encode(["success" => false, "message" => "All fields are required"]);
+if (!$email || !$password) {
+    echo json_encode(["success" => false, "message" => "Email & password required"]);
     exit;
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(["success" => false, "message" => "Invalid email"]);
+$query = $conn->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+$query->execute([":email" => $email]);
+$user = $query->fetch(PDO::FETCH_ASSOC);
+
+if (!$user || !password_verify($password, $user["password_hash"])) {
+    echo json_encode(["success" => false, "message" => "Invalid email or password"]);
     exit;
 }
 
-$passwordHash = password_hash($password, PASSWORD_BCRYPT);
-
-try {
-    $query = $conn->prepare(
-        "INSERT INTO users (name, email, password_hash) 
-         VALUES (:name, :email, :password)"
-    );
-
-    $query->execute([
-        ":name" => $name,
-        ":email" => $email,
-        ":password" => $passwordHash
-    ]);
-
-    echo json_encode(["success" => true, "message" => "Account created successfully"]);
-}
-catch (PDOException $e) {
-
-    // duplicate email
-    if ($e->getCode() == 23000) {
-        echo json_encode(["success" => false, "message" => "Email already registered"]);
-    } 
-    else {
-        echo json_encode(["success" => false, "message" => "Registration failed"]);
-    }
-}
+echo json_encode([
+    "success" => true,
+    "message" => "Login successful",
+    "user" => [
+        "id" => $user["id"],
+        "name" => $user["name"],
+        "email" => $user["email"]
+    ]
+]);
 ?>
