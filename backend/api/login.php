@@ -27,20 +27,19 @@ if (!$email || !$password) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT id, password FROM users WHERE email = ? LIMIT 1");
-$stmt->bind_param("s", $email);
+$stmt = $conn->prepare("SELECT id, password FROM users WHERE email = :email LIMIT 1");
+$stmt->bindParam(":email", $email);
 $stmt->execute();
-$result = $stmt->get_result();
 
-if ($result->num_rows === 0) {
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user) {
     echo json_encode([
         "success" => false,
         "message" => "User not found"
     ]);
     exit;
 }
-
-$user = $result->fetch_assoc();
 
 if (!password_verify($password, $user['password'])) {
     echo json_encode([
