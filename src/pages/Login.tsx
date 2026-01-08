@@ -1,183 +1,128 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useStore } from "@/store/useStore";
-import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Login() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState("");
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate();
-  const login = useStore((state) => state.login);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  // ---------- PHP LOGIN ----------
-  async function loginUser(email: string, password: string) {
-    const res = await fetch("http://localhost/backend/api/login.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    return await res.json();
-  }
-
-  // ---------- PHP REGISTER ----------
-  async function registerUser(name: string, email: string, password: string) {
-    const res = await fetch("http://localhost/backend/api/register.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
-
-    return await res.json();
-  }
-
-  // ---------- FORM SUBMIT ----------
-  const handleSubmit = async (e: React.FormEvent) => {
-    const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  if (!email || !password || (!isLogin && !name)) {
-    toast.error("Please fill all required fields");
-    return;
-  }
-
-  if (password.length < 6) {
-    toast.error("Password must be at least 6 characters");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-
-    // ========== LOGIN ==========
-    if (isLogin) {
-
+    try {
       const res = await fetch("http://localhost/backend/api/login.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      const result = await res.json();
+      const data = await res.json();
 
-      if (!result.success) {
-        toast.error(result.message || "Invalid email or password");
+      if (!data.success) {
+        setError(data.message || "Login failed");
         setLoading(false);
         return;
       }
 
-      // Save user
-      localStorage.setItem("user", JSON.stringify(result.user));
+      // Optional: store user
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      login(result.user.name, result.user.email);
-
-      toast.success("Login successful!");
-      setTimeout(() => navigate("/"), 1000);
-      return;
-    }
-
-    // ========== REGISTER ==========
-    const res = await fetch("http://localhost/backend/api/register.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password })
-    });
-
-    const result = await res.json();
-
-    if (!result.success) {
-      toast.error(result.message || "Registration failed");
+      navigate("/"); // redirect after login
+    } catch (err) {
+      setError("Server error — please try again");
+    } finally {
       setLoading(false);
-      return;
     }
+  };
 
-    toast.success("Account created successfully!");
-    setTimeout(() => setIsLogin(true), 1000);
-
-  } catch (err) {
-    console.error(err);
-    toast.error("Server error — please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
   return (
-    <Layout>
-      <ToastContainer position="top-right" autoClose={3000} />
-      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">
-              {isLogin ? "Welcome Back" : "Create Account"}
-            </CardTitle>
-            <CardDescription>
-              {isLogin
-                ? "Sign in to your GJ Fashion Store account"
-                : "Join GJ Fashion Store today"}
-            </CardDescription>
-          </CardHeader>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        {/* Brand */}
+        <h1 className="text-2xl font-bold text-center text-neutral-800">
+          GJ Fashion Store
+        </h1>
+        <p className="text-center text-sm text-neutral-500 mt-1">
+          Sign in to continue
+        </p>
 
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Error */}
+        {error && (
+          <div className="mt-4 rounded-lg bg-red-50 text-red-600 text-sm px-4 py-2">
+            {error}
+          </div>
+        )}
 
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label>Full Name</Label>
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-              )}
+        {/* Form */}
+        <form onSubmit={handleLogin} className="mt-6 space-y-5">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700">
+              Email
+            </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="mt-1 w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-black focus:outline-none"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Password</Label>
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Please wait..." : isLogin ? "Login" : "Create Account"}
-              </Button>
-
-              <p
-                className="text-center text-sm cursor-pointer text-primary hover:underline"
-                onClick={() => setIsLogin(!isLogin)}
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700">
+              Password
+            </label>
+            <div className="relative mt-1">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-lg border border-neutral-300 px-4 py-2 pr-10 focus:border-black focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-sm text-neutral-500 hover:text-black"
               >
-                {isLogin
-                  ? "Don't have an account? Register"
-                  : "Already registered? Login"}
-              </p>
-            </form>
-          </CardContent>
-        </Card>
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+          {/* Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-black text-white py-2.5 font-medium hover:bg-neutral-800 transition disabled:opacity-50"
+          >
+            {loading ? "Signing in..." : "Login"}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <p className="mt-6 text-center text-sm text-neutral-600">
+          Don’t have an account?{" "}
+          <button
+            onClick={() => navigate("/register")}
+            className="font-medium text-black hover:underline"
+          >
+            Create account
+          </button>
+        </p>
       </div>
-    </Layout>
+    </div>
   );
 }
